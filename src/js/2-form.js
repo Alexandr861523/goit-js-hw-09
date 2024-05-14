@@ -1,39 +1,35 @@
-let formData = {
-  email: '',
-  message: '',
-};
+let formData = { email: "", message: "" };
+const form = document.querySelector(".feedback-form");
+const formDataKey = "feedback-form-state";
 
-function forms() {
-  formData.email = document.querySelector('.email').value;
-  formData.message = document.querySelector('.message').value;
+const savedFormData = JSON.parse(localStorage.getItem(formDataKey)) || {};
 
-  sessionStorage.setItem('feedback-form-data', JSON.stringify(formData));
+if (savedFormData) {
+    formData = { ...formData, ...savedFormData };
+    form.elements.email.value = formData.email || "";
+    form.elements.message.value = formData.message || "";
 }
 
-window.addEventListener('load', () => {
-  const storedData = sessionStorage.getItem('feedback-form-data');
-  if (storedData) {
-    formData = JSON.parse(storedData);
-
-    document.querySelector('.email').value = formData.email;
-    document.querySelector('.message').value = formData.message;
-  }
+form.addEventListener("input", (event) => {
+    formData.email = form.elements.email.value.trim();
+    formData.message = form.elements.message.value.trim();
+    
+    localStorage.setItem(formDataKey, JSON.stringify(formData));
 });
 
-document.querySelector('.feedback-form').addEventListener('input', forms);
+form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const { email, message } = formData;
 
-document.querySelector('.feedback-form').addEventListener('submit', event => {
-  event.preventDefault();
+    if (email === "" || message === "") {
+       alert("Fill please all fields");
+       return; 
+    }
 
-  if (formData.email.trim() === '' || formData.message.trim() === '') {
-    alert('Заповни поля');
-    return;
-  }
+    console.log(formData);
+    localStorage.removeItem(formDataKey);
+    form.elements.email.value = "";
+    form.elements.message.value = "";
 
-  console.log(formData);
-
-  sessionStorage.removeItem('feedback-form-data');
-  formData = { email: '', message: '' };
-  document.querySelector('.email').value = '';
-  document.querySelector('.message').value = '';
+    form.reset();
 });
